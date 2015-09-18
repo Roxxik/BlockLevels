@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<style>
+		table, th, td {
+			border: 2px solid black;
+			border-collapse: collapse;
+		}
+	</style>
+</head>
+<body>
+
+<h1>Block Levels</h1>
+
+<table id="board"></table>
+
+<script>
+"use strict";
+var game = new Game(5,5)
+
+var boardHTML = document.getElementById("board");
+
+boardHTML.innerHTML = game.prettify();
+
+function Game(cols, rows) {
+	var score = 0;
+	var cols = cols;
+	var rows = rows;
+	var board = newBoard(cols,rows);
+	
+	var isIn = function(arr, coord) {
+		for(var i = 0, j = arr.length; i < j; i++) {
+            if(arr[i].col == coord.col && arr[i].row == coord.row) return true;
+		}
+        return false;
+	}
+	
+	var floodfill = function(col, row, stone) {
+		var open = [];
+		var closed = [];
+		open.push({ col: col, row: row });
+		while(open.length > 0) {
+			var coords = open.pop();
+			if(coords.row >= 0 && coords.row < rows
+			&& coords.col >= 0 && coords.col < cols
+			&& !isIn(closed,coords)
+			&& board[coords.row][coords.col] == stone) {
+				closed.push(coords);
+				open.push({col: coords.col + 1, row: coords.row});
+				open.push({col: coords.col - 1, row: coords.row});
+				open.push({col: coords.col, row: coords.row + 1});
+				open.push({col: coords.col, row: coords.row - 1});
+			}
+		}
+		return closed;
+	}
+	
+	var mergeStones = function(col, row) {
+		var stone = board[row][col];
+		var stones = floodfill(col, row, stone);
+		if(stones.length >= 3) {
+			//clear Stones
+			for(var i = 0; i < stones.length; i++) {
+				board[stones[i].row][stones[i].col] = 0;
+			}
+			//place new Stone
+			board[row][col] = stone + 1;
+			mergeStones(col,row);
+		}
+	}
+	
+	this.placeStone = function(col, row) {
+		if(board[row][col] == 0) {
+			board[row][col] = 1;
+			mergeStones(col,row);
+		}
+	}
+	
+	this.prettify = function() {
+		var str = "";
+		for(var i = 0; i < rows; i++) {
+			str += "<tr>";
+			for(var j = 0; j < cols; j++) {
+				str += "<td onclick=\"game.placeStone(" + j + "," + i + ");boardHTML.innerHTML = game.prettify();\">" + board[i][j] + "</td>";
+			}
+			str += "</tr>";
+		}
+		return str;
+	}
+	
+	this.getScore = function() {
+		return score;
+	}
+	
+	this.getBoard = function() {
+		return board;
+	}
+}
+
+function newBoard(cols, rows) {
+	var board = [];
+	for(var i = 0; i < rows; i++) {
+		var row = [];
+		for(var j = 0; j < cols; j++) {
+			row.push(0);
+		}
+		board.push(row);
+	}
+	return board;
+}
+</script>
+
+</body>
+</html> 
