@@ -15,7 +15,7 @@
 		
 		<script>
 			"use strict";
-			var game = new Game(5,5)
+			var game = new Game(5,5);
 			
 			var scoreHTML = document.getElementById("score");
 			var boardHTML = document.getElementById("board");
@@ -67,7 +67,7 @@
 						//place new Stone
 						board[row][col] = stone + 1;
 						//update score
-						score += stones.length * 2 * stone - stone * 3
+						score += stones.length * 2 * stone - stone * 3;
 						//recurse
 						mergeStones(col,row);
 					}
