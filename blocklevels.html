@@ -11,16 +11,18 @@
 <body>
 
 <h1>Block Levels</h1>
-
+<p id="score">0</p>
 <table id="board"></table>
 
 <script>
 "use strict";
 var game = new Game(5,5)
 
+var scoreHTML = document.getElementById("score");
 var boardHTML = document.getElementById("board");
 
 boardHTML.innerHTML = game.prettify();
+scoreHTML.innerHTML = game.getScore();
 
 function Game(cols, rows) {
 	var score = 0;
@@ -28,6 +30,7 @@ function Game(cols, rows) {
 	var rows = rows;
 	var board = newBoard(cols,rows);
 	
+	//private
 	var isIn = function(arr, coord) {
 		for(var i = 0, j = arr.length; i < j; i++) {
             if(arr[i].col == coord.col && arr[i].row == coord.row) return true;
@@ -35,6 +38,7 @@ function Game(cols, rows) {
         return false;
 	}
 	
+	//private
 	var floodfill = function(col, row, stone) {
 		var open = [];
 		var closed = [];
@@ -55,6 +59,7 @@ function Game(cols, rows) {
 		return closed;
 	}
 	
+	//private
 	var mergeStones = function(col, row) {
 		var stone = board[row][col];
 		var stones = floodfill(col, row, stone);
@@ -65,10 +70,14 @@ function Game(cols, rows) {
 			}
 			//place new Stone
 			board[row][col] = stone + 1;
+			//update score
+			score += stones.length * 2 - stone * 3
+			//recurse
 			mergeStones(col,row);
 		}
 	}
 	
+	//public
 	this.placeStone = function(col, row) {
 		if(board[row][col] == 0) {
 			board[row][col] = 1;
@@ -76,22 +85,25 @@ function Game(cols, rows) {
 		}
 	}
 	
+	//public
 	this.prettify = function() {
 		var str = "";
 		for(var i = 0; i < rows; i++) {
 			str += "<tr>";
 			for(var j = 0; j < cols; j++) {
-				str += "<td onclick=\"game.placeStone(" + j + "," + i + ");boardHTML.innerHTML = game.prettify();\">" + board[i][j] + "</td>";
+				str += "<td onclick=\"game.placeStone(" + j + "," + i + ");boardHTML.innerHTML = game.prettify();scoreHTML.innerHTML = game.getScore();\">" + board[i][j] + "</td>";
 			}
 			str += "</tr>";
 		}
 		return str;
 	}
 	
+	//public
 	this.getScore = function() {
 		return score;
 	}
 	
+	//public
 	this.getBoard = function() {
 		return board;
 	}
